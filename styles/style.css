@@ -10,3 +10,7 @@ img {
 	width: 25%;
 	height: 25%;
 }
+
+p {
+	display: inline-block;
+}
