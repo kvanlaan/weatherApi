@@ -28,8 +28,8 @@ var changeView = function(clickEvent) {
 var currentHtml = function(jsonData) { 
     var htmlString = ""
     htmlString += "<h1> Current Weather </h1>"
-    htmlString += "<p><h2> " + jsonData.currently.apparentTemperature + " &deg;C " + " </h2></p>"
-    htmlString += "<p><h3> " + jsonData.currently.summary + " </h3></p>"
+    htmlString += "<h2> " + jsonData.currently.apparentTemperature + " &deg;C " + " </h2>"
+    htmlString += "<h3> " + jsonData.currently.summary + " </h3>"
     htmlString += "<p> " + date + " </p>"
     console.log(htmlString)
     containerEl.innerHTML = htmlString
@@ -41,7 +41,7 @@ var dailyHtml = function(jsonData) {
         for (var i = 0; i < 7; i++) { 
             var obj = newArr[i]
             htmlString += "<h2> Day " + i + " Weather </h2>"
-            htmlString += "<p><h2>" + obj.apparentTemperatureMax + " &deg;C" + "</h2></p>"
+            htmlString += "<h2>" + obj.apparentTemperatureMax + " &deg;C" + "</h2>"
 
         }
         containerEl.innerHTML = htmlString
@@ -97,8 +97,8 @@ var hourlyHtml = function(jsonData) { //We want to iterate over the array data, 
         var newArr = jsonData.hourly.data
         for (var i = 0; i < 5; i++) { //We'll only use the first five images.
             var obj = newArr[i]
-            htmlString += " Hour " + i + " Weather "
-            htmlString += "<p>" + obj.apparentTemperature + " &deg;C " + "</p>"
+            htmlString += "<h2> Hour " + i + " Weather </h2>"
+            htmlString += "<h2>" + obj.apparentTemperature + " &deg;C " + "</h2>"
         }
         htmlString += "<p> " + date + " </p>"
         containerEl.innerHTML = htmlString
