@@ -38,6 +38,8 @@ var currentHtml = function(jsonData) {
 var dailyHtml = function(jsonData) { 
         htmlString = "<h1> 7-Day Forecast </h1>"
         var newArr = jsonData.daily.data
+
+        console.log(newArr)
         for (var i = 0; i < 7; i++) { 
             var obj = newArr[i]
             htmlString += "<h2> Day " + i + " Weather </h2>"
@@ -63,13 +65,16 @@ var handleUserInput = function(keyEvent) {
         if (keyEvent.keyCode === 13) {
             var inputEl = keyEvent.target
             var query = inputEl.value
-            location.hash = query
-            inputEl.value = ""
-           
-        }
-     var searchPromise = $.getJSON(fullUrl)
-     searchPromise.then(handleData)
+
+    var route = window.location.hash.substr(1)
+    var routeParts = route.split('/')
+    var viewType = routeParts[0]
+    var queryParts = query.split(',')
+        lat = queryParts[0],
+        lon = queryParts[1]
+    window.location.hash = viewType + "/" + lat + "/" + lon 
     }
+}
 ///
 var hashController = function() { 
         var route = window.location.hash.substring(1) 
@@ -106,7 +111,7 @@ var hourlyHtml = function(jsonData) { //We want to iterate over the array data, 
 
 ///promisemaker
 var makePromise = function(lat,lon) { 
-		var fullUrl = baseUrl + lat + "," + lon 
+		var fullUrl = baseUrl + lat + "," + lon + "?callback=?"
         var promise = $.getJSON(fullUrl)
      	return promise 
     }
