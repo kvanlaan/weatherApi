@@ -2,7 +2,24 @@ console.log("hello")
 console.log($)
 
 //date
+
+
 var date = new Date()
+
+var getDayOfWeek = new Date() 
+var today = getDayOfWeek.getDay()
+
+//object to be used to designate day for daily view
+var week = {
+        1: "Monday",
+        2: "Tuesday", 
+        3: "Wednesday", 
+        4: "Thursday",
+        5: "Friday", 
+        6: "Saturday",
+        7: "Sunday",
+}
+
 
 //queryselectors
 var inputEl = document.querySelector("input"),
@@ -21,33 +38,66 @@ var changeView = function(clickEvent) {
 		lon = routeParts[2]
 
 	var buttonEl = clickEvent.target,
-		newView = buttonEl.value
+	newView = buttonEl.value
 	location.hash = newView + "/" + lat + "/" + lon
 }
 ///making the different htmlstrings///
 var currentHtml = function(jsonData) { 
-    var htmlString = ""
-    htmlString += "<h1> Current Weather </h1>"
-    htmlString += "<h2> " + jsonData.currently.apparentTemperature + " &deg;C " + " </h2>"
-    htmlString += "<h3> " + jsonData.currently.summary + " </h3>"
-    htmlString += "<p> " + date + " </p>"
-    console.log(htmlString)
-    containerEl.innerHTML = htmlString
-}
+        var htmlString = ''
+        htmlString = '<div class="cityContainer"><p>Current Forecast</p></div><div class="current">' + jsonData.currently.temperature.toPrecision(2) + " &deg;F <h2> ~ " + jsonData.currently.summary + "~ <canvas id='currentSky' width='100' height='100'></canvas> </h2><h4>" + date + "</h4></div>"
+        containerEl.innerHTML = htmlString
+        var icons = jsonData.currently.icon
+        doSkyconStuff(icons)
+    }
+
 ///daily
 var dailyHtml = function(jsonData) { 
-        htmlString = "<h1> 7-Day Forecast </h1>"
-        var newArr = jsonData.daily.data
+            console.log(jsonData)
+            var dayArray = jsonData.daily.data
+            console.log(dayArray)
+            var newHtmlString = '<div class="cityContainer"><p>7-Day Forecast</p></div>'
 
-        console.log(newArr)
-        for (var i = 0; i < 7; i++) { 
-            var obj = newArr[i]
-            htmlString += "<h2> Day " + i + " Weather </h2>"
-            htmlString += "<h2>" + obj.apparentTemperatureMax + " &deg;C" + "</h2>"
+            for (var i = 0; i < dayArray.length; i++) {
+                if (today < 7) {
+                today += 1
+                var day = dayArray[i]
+                var iconString = day.icon
+                console.log(iconString)
+                newHtmlString += '<div class = "day"> <h1>' + week[today] + ' </h1> ' + day.apparentTemperatureMax.toPrecision(2) + '&deg; F <canvas class="daily" id="dailySky' + i + '"width="100" height="100" data-icon="' + iconString + '"></canvas></div>'
 
+        } else { today = 0}
+        
+            }
+
+            containerEl.innerHTML = newHtmlString
+
+
+            var dailyIcons = document.querySelectorAll('canvas.daily')
+            for (var i = 0; i < dailyIcons.length; i++) {
+                var iconStuff = dailyIcons[i].dataset.icon
+                doSkyconStuff(iconStuff, i)
+            }
         }
-        containerEl.innerHTML = htmlString
-    }
+
+//Skycons--animated weather icons corresponding to icon provided by forecast.io
+
+var doSkyconStuff = function(iconString, iconNumber) {
+
+    console.log(iconString)
+    var formattedIcon = iconString.toUpperCase().replace(/-/g, "_")
+
+    var skycons = new Skycons({ "color": "pink" });
+    // on Android, a nasty hack is needed: {"resizeClear": true}
+
+    // you can add a canvas by it's ID...
+    skycons.add("currentSky", Skycons[formattedIcon]);
+    //adding all the Daily Sky Ids
+    skycons.add("dailySky" + iconNumber, Skycons[formattedIcon]);
+    skycons.add("hourlySky", Skycons[formattedIcon]);
+
+    // start animation!
+    skycons.play();
+}
 
 ///geolocation
 var handleDefault = function() {
@@ -69,10 +119,10 @@ var handleUserInput = function(keyEvent) {
     var route = window.location.hash.substr(1)
     var routeParts = route.split('/')
     var viewType = routeParts[0]
-    var queryParts = query.split(',')
+    var queryParts = query.split(','),
         lat = queryParts[0],
         lon = queryParts[1]
-    window.location.hash = viewType + "/" + lat + "/" + lon 
+    window.location.hash = "currently/" + lat + "/" + lon 
     }
 }
 ///
@@ -96,17 +146,15 @@ var hashController = function() {
         }
     }
 //hourlyhtml
-var hourlyHtml = function(jsonData) { //We want to iterate over the array data, using it to build an htmlString that we will output.
-        // Initializes the empty string of HTML that we will build. 
-        htmlString = "<h1> Hourly Forecast </h1>"
-        var newArr = jsonData.hourly.data
-        for (var i = 0; i < 5; i++) { //We'll only use the first five images.
-            var obj = newArr[i]
-            htmlString += "<h2> Hour " + i + " Weather </h2>"
-            htmlString += "<h2>" + obj.apparentTemperature + " &deg;C " + "</h2>"
+var hourlyHtml = function(jsonData) {
+      
+        var hourArray = jsonData.hourly.data
+        var newHtmlString = '<div class="cityContainer"><p>Hourly Forecast</p></div>'
+        for (var i = 0; i < 24; i++) {
+            var hour = hourArray[i]
+            newHtmlString += '<div class = "hour"><h1> Hour ' + (i + 1) + ' </h1> ' + hour.apparentTemperature.toPrecision(2) + '&deg; F </div>'
         }
-        htmlString += "<p> " + date + " </p>"
-        containerEl.innerHTML = htmlString
+        containerEl.innerHTML = newHtmlString
     }
 
 ///promisemaker
